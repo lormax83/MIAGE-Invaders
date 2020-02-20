@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>MDN Games: Babylon.js demo</title>
+    <style>
+        html,body,canvas { margin: 0; padding: 0; width: 100%; height: 100%; font-size: 0; }
+    </style>
+</head>
+<body>
+    <!--
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+    <script src="https://cdn.babylonjs.com/cannon.js"></script>
+    <script src="https://code.jquery.com/pep/0.4.3/pep.js"></script>
+    <script src="https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>-->
+    <canvas id="renderCanvas"></canvas>
+    <script>
+        var canvas = document.getElementById("renderCanvas");
+
+        var engine = null;
+        var scene = null;
+        var createDefaultEngine = function() { return new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true }); };
+        var createScene = function () {
+        
+            var scene = new BABYLON.Scene(engine);
+        
+            var camera = new BABYLON.ArcRotateCamera("Camera", 0, 10, -40, new BABYLON.Vector3(-25, -10, -30), scene);
+            
+            //controle camera to be deleted
+            camera.attachControl(canvas, true);
+        
+            var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
+        
+            light.intensity = 0.1;
+            var material = new BABYLON.StandardMaterial("material", scene);
+            material.emissiveColor = new BABYLON.Color3(0, 0.58, 0.86);
+            var sphere = BABYLON.MeshBuilder.CreateSphere("sphere", {diameter: 2, segments: 32}, scene);
+        
+            sphere.position.y = 1;
+            sphere.material = material;
+            camera.target = sphere
+            var ground = BABYLON.MeshBuilder.CreateGround("ground", {width: 500, height: 500}, scene);
+        
+            // Keyboard events
+            var inputMap ={};
+            scene.actionManager = new BABYLON.ActionManager(scene);
+            scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnKeyDownTrigger, function (evt) {								
+                inputMap[evt.sourceEvent.key] = evt.sourceEvent.type == "keydown";
+            }));
+            scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnKeyUpTrigger, function (evt) {								
+                inputMap[evt.sourceEvent.key] = evt.sourceEvent.type == "keydown";
+            }));
+        
+            // Game/Render loop
+            scene.onBeforeRenderObservable.add(()=>{
+                if(inputMap["z"]){
+                    sphere.position.z+=0.1
+                } 
+                if(inputMap["q"]){
+                    sphere.position.x-=0.1
+                } 
+                if(inputMap["s"]){
+                    sphere.position.z-=0.1
+                } 
+                if(inputMap["d"]){
+                    sphere.position.x+=0.1
+                }   
+
+
+
+            })
+
+            //enemies creation and alignement
+                var enemie = [];
+            for (let index = 0; index < 30; index++) {
+            
+                var enemies = BABYLON.MeshBuilder.CreateBox("sphere", {width: 3, height: 3, size: 3}, scene);
+                var colorEnemies = new BABYLON.StandardMaterial("material", scene);
+                colorEnemies.emissiveColor = new BABYLON.Color3(Math.random(), Math.random(), Math.random());
+                enemies.material = colorEnemies;
+                enemies.position.y = 1;
+                enemies.position.x += index*4 ;
+                 if( index >= 10 && index < 20){
+                     enemies.position.z = 6;
+                     enemies.position.x += index -50;
+                 }
+                 if(index >= 20){
+                     enemies.position.z = 12;
+                     enemies.position.x += index -100;
+                 }
+                 enemie.push(enemies);
+
+                 if(sphere.position.x == enemies.position.x){
+                //enemies.dispose();
+                console.log("destroy")
+            }
+                
+            }
+
+
+
+
+            return scene;
+        
+        };
+        
+        engine = createDefaultEngine();
+        if (!engine) throw 'engine should not be null.';
+        scene = createScene();
+
+        engine.runRenderLoop(function () {
+            if (scene) {
+                scene.render();
+            }
+        });
+
+        // Resize
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });
+</script>
+</body>
+</html>
