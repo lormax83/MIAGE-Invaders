@@ -38,6 +38,8 @@
             sphere.position.y = 1;
             sphere.material = material;
             camera.target = sphere
+
+            
             var ground = BABYLON.MeshBuilder.CreateGround("ground", {width: 500, height: 500}, scene);
         
             // Keyboard events
@@ -64,40 +66,64 @@
                 if(inputMap["d"]){
                     sphere.position.x+=0.1
                 }   
-
-
+                
+                checkPosition();
+                shoot();
+                
+            
 
             })
 
-            //enemies creation and alignement
-                var enemie = [];
-            for (let index = 0; index < 30; index++) {
-            
-                var enemies = BABYLON.MeshBuilder.CreateBox("sphere", {width: 3, height: 3, size: 3}, scene);
-                var colorEnemies = new BABYLON.StandardMaterial("material", scene);
-                colorEnemies.emissiveColor = new BABYLON.Color3(Math.random(), Math.random(), Math.random());
-                enemies.material = colorEnemies;
+                var enemies = BABYLON.MeshBuilder.CreateBox("enemies", {width: 3, height: 3, size: 3}, scene);
+                var color = new BABYLON.StandardMaterial("material", scene);
+                color.emissiveColor = new BABYLON.Color3(Math.random(), Math.random(), Math.random());
+                enemies.material = color;
                 enemies.position.y = 1;
-                enemies.position.x += index*4 ;
-                 if( index >= 10 && index < 20){
-                     enemies.position.z = 6;
-                     enemies.position.x += index -50;
-                 }
-                 if(index >= 20){
-                     enemies.position.z = 12;
-                     enemies.position.x += index -100;
-                 }
-                 enemie.push(enemies);
+                enemies.position.x += 4 ;
 
-                 if(sphere.position.x == enemies.position.x){
-                //enemies.dispose();
-                console.log("destroy")
-            }
+                var reloading = false ;
+
+               function checkPosition(){
+                if(Math.round(sphere.position.x) == Math.round(enemies.position.x) && Math.round(sphere.position.z) == Math.round(enemies.position.z)){
+                                enemies.dispose();
+                    }
+                }
+                function reload(){
+                    reloading = true
+                    setTimeout(() => {
+                        reloading = false;
+                    }, 2000);
+                }
+                function shoot(){
+                   
+                    if(inputMap[" "] && reloading == false){
+                         var target =  new BABYLON.Vector3(sphere.position.x,sphere.position.y,sphere.position.z);
+                        console.log(target);
+                        console.log("fire !")
+                        var tir1 = BABYLON.MeshBuilder.CreateBox("tir1", {width: 0.5, height: 0.5, size: 2}, scene);
+                        tir1.material = color;
+                        tir1.lookAt(target);
+                        //console.log(tir1.lookAt(target))
+                        var tir2 = BABYLON.MeshBuilder.CreateBox("tir2", {width: 0.5, height: 0.5, size: 2}, scene);
+                        tir2.material = color;
+                        
+
+                        tir1.position.x = camera.position.x;
+                        tir1.position.x += 1;
+                        tir2.position.x = camera.position.x;
+                        tir2.position.x -= 1;
+                        tir1.position.y = camera.position.y;
+                        tir2.position.y = camera.position.y;
+                        tir1.position.z = camera.position.z;
+                        tir2.position.z = camera.position.z;
+
+                        tir1.lookAt(target);
+                        tir2.lookAt(target);
+                        
+                        reload();
+                    }
+                }
                 
-            }
-
-
-
 
             return scene;
         
