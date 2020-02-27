@@ -12,6 +12,7 @@
     <script src="https://cdn.babylonjs.com/cannon.js"></script>
     <script src="https://code.jquery.com/pep/0.4.3/pep.js"></script>
     <script src="https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+    
     <canvas id="renderCanvas"></canvas>
     <script>
         var canvas = document.getElementById("renderCanvas");
@@ -23,7 +24,7 @@
         
             var scene = new BABYLON.Scene(engine);
         
-            var camera = new BABYLON.ArcRotateCamera("Camera", 0, 10, -40, new BABYLON.Vector3(-25, -10, -30), scene);
+            var camera = new BABYLON.DeviceOrientationCamera("DevOr_camera", new BABYLON.Vector3(10, 10, 0), scene);
             
             //controle camera to be deleted
             camera.attachControl(canvas, true);
@@ -37,7 +38,6 @@
         
             sphere.position.y = 1;
             sphere.material = material;
-            camera.target = sphere
 
             
             var ground = BABYLON.MeshBuilder.CreateGround("ground", {width: 500, height: 500}, scene);
@@ -69,24 +69,62 @@
                 
                 checkPosition();
                 shoot();
-                
+                createenemie();
+                kill();
             
 
             })
-
-                var enemies = BABYLON.MeshBuilder.CreateBox("enemies", {width: 3, height: 3, size: 3}, scene);
-                var color = new BABYLON.StandardMaterial("material", scene);
-                color.emissiveColor = new BABYLON.Color3(Math.random(), Math.random(), Math.random());
-                enemies.material = color;
-                enemies.position.y = 1;
-                enemies.position.x += 4 ;
+            
+            var enemie = BABYLON.MeshBuilder.CreateBox("enemie", {width: 3, height: 3, size: 3}, scene);
+                
 
                 var reloading = false ;
 
+	var isLocked = false;
+	scene.onPointerDown = function (evt) {
+		if (!isLocked) {
+			canvas.requestPointerLock = canvas.requestPointerLock || canvas.msRequestPointerLock || canvas.mozRequestPointerLock || canvas.webkitRequestPointerLock;
+			if (canvas.requestPointerLock) {
+				canvas.requestPointerLock();
+			}
+		}
+		if (evt === 0) {castRay()};
+	};
+	
+	var pointerlockchange = function () {
+		var controlEnabled = document.mozPointerLockElement || document.webkitPointerLockElement || document.msPointerLockElement || document.pointerLockElement || null;
+		
+		if (!controlEnabled) {
+			isLocked = false;
+		} else {
+			isLocked = true;
+		}
+	};
+    
+	document.addEventListener("pointerlockchange", pointerlockchange, false);
+	document.addEventListener("mspointerlockchange", pointerlockchange, false);
+	document.addEventListener("mozpointerlockchange", pointerlockchange, false);
+	document.addEventListener("webkitpointerlockchange", pointerlockchange, false);
+
+
                function checkPosition(){
-                if(Math.round(sphere.position.x) == Math.round(enemies.position.x) && Math.round(sphere.position.z) == Math.round(enemies.position.z)){
-                                enemies.dispose();
+                if(Math.round(sphere.position.x) == Math.round(enemie.position.x) && Math.round(sphere.position.z) == Math.round(enemie.position.z)){
+                                enemie.dispose();
                     }
+                }
+                function createenemie(){
+                if(reloading == false){
+                var enemie = BABYLON.MeshBuilder.CreateBox("enemie", {width: 3, height: 3, size: 3}, scene);
+                var color = new BABYLON.StandardMaterial("material", scene);
+                color.emissiveColor = new BABYLON.Color3(Math.random(), Math.random(), Math.random());
+                enemie.material = color;
+                enemie.position.y = 3
+                enemie.position.x = Math.round(Math.random() * (50 - -50) + -50);
+                enemie.position.z =Math.round(Math.random() * (50 - -50) + -50) ;
+                reload();
+                    }
+                
+                    
                 }
                 function reload(){
                     reloading = true
@@ -102,8 +140,6 @@
                         console.log("fire !")
                         var tir1 = BABYLON.MeshBuilder.CreateBox("tir1", {width: 0.5, height: 0.5, size: 2}, scene);
                         tir1.material = color;
-                        tir1.lookAt(target);
-                        //console.log(tir1.lookAt(target))
                         var tir2 = BABYLON.MeshBuilder.CreateBox("tir2", {width: 0.5, height: 0.5, size: 2}, scene);
                         tir2.material = color;
                         
@@ -121,10 +157,18 @@
                         tir2.lookAt(target);
                         
                         reload();
+
+                        target.normalize();
+                        distance = 0.1;
+                        scene.registerAfterRender(function () {
+                        tir1.translate(target, distance, BABYLON.Space.LOCAL);
+                        tir2.translate(target, distance, BABYLON.Space.LOCAL);
+  });
+                        
                     }
                 }
-                
-
+                function kill(){
+                }
             return scene;
         
         };
