@@ -33,7 +33,7 @@
         var engine = new BABYLON.Engine(canvas, true);
 
         // here the doc for Load function: //doc.babylonjs.com/api/classes/babylon.sceneloader#load
-        var loader = BABYLON.SceneLoader.Load("./", "Alien_original_final.babylon", engine, function (scene) {
+        var loader = BABYLON.SceneLoader.Load("./assets/", "Alien_original_final.babylon", engine, function (scene) {
 
             //as this .babylon example hasn't camera in it, we have to create one
             var camera = new BABYLON.ArcRotateCamera("Camera", 0, 50, 50, new BABYLON.Vector3(0, 0, 0), scene);
