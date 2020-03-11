@@ -33,25 +33,47 @@
         var engine = new BABYLON.Engine(canvas, true);
 
         // here the doc for Load function: //doc.babylonjs.com/api/classes/babylon.sceneloader#load
-        var loader = BABYLON.SceneLoader.Load("./assets/", "Alien_original_final.babylon", engine, function (scene) {
+        var createScene = function () {
+        
+        var scene = new BABYLON.Scene(engine);
+        var music = new BABYLON.Sound("Music", "./Music/music.mp3", scene, null, {
+            loop: true,
+        autoplay: true
+            });
+        BABYLON.SceneLoader.ImportMesh("","./assets/","octo.glb",scene,function(octo){
+           octo[0].position.x = 20;
+            octo[0].rotation.y = 10;
+        });
+        BABYLON.SceneLoader.ImportMesh("","./assets/","poulpe.glb",scene);
 
             //as this .babylon example hasn't camera in it, we have to create one
             var camera = new BABYLON.ArcRotateCamera("Camera", 0, 50, 50, new BABYLON.Vector3(0, 0, 0), scene);
             camera.setPosition(new BABYLON.Vector3(-20, 20, 20));
             camera.attachControl(canvas, true);
             
-            var light = new BABYLON.PointLight("Omni", new BABYLON.Vector3(10, 10, 0), scene);
+            var light1 = new BABYLON.HemisphericLight( "HemiLight", new BABYLON.Vector3(0, 1, 0), scene);
 
-            scene.clearColor = new BABYLON.Color3(1, 1, 1);
-            scene.ambientColor = new BABYLON.Color3.White;
-            
-            engine.runRenderLoop(function() {
+            scene.clearColor = new BABYLON.Color3(0,0,0);
+            scene.ambientColor = new BABYLON.Color3(0,0,0);
+
+            // Skybox
+	var skybox = BABYLON.MeshBuilder.CreateBox("skyBox", {size:10000}, scene);
+	var skyboxMaterial = new BABYLON.StandardMaterial("skyBox", scene);
+	skyboxMaterial.backFaceCulling = false;
+	skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("./Skybox/skybox", scene);
+	skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+	skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
+	skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
+	skybox.material = skyboxMaterial;
+
+            return scene;
+        };
+        scene = createScene();
+
+        engine.runRenderLoop(function () {
+            if (scene) {
                 scene.render();
-            });
-
-            window.addEventListener("resize", function () {
-                engine.resize();
-            });
+            }
         });
     </script>
 </body>
