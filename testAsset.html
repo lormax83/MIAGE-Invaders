@@ -42,6 +42,8 @@
             });
         BABYLON.SceneLoader.ImportMesh("","./assets/","octo.glb",scene,function(octo){
            octo[0].position.x = 20;
+           octo[0].rotation.x = 10;
+           console.log(octo[0])
         });
         BABYLON.SceneLoader.ImportMesh("","./assets/","poulpe.glb",scene);
         BABYLON.SceneLoader.ImportMesh("","./assets/","Alien_original_final.glb",scene,function(alien){
@@ -68,7 +70,8 @@
 	var skybox = BABYLON.MeshBuilder.CreateBox("skyBox", {size:10000}, scene);
 	var skyboxMaterial = new BABYLON.StandardMaterial("skyBox", scene);
 	skyboxMaterial.backFaceCulling = false;
-	skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("./Skybox/skybox", scene);
+    
+	skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("./Skybox/Space/space", scene);
 	skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
 	skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
 	skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
